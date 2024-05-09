@@ -10,7 +10,7 @@ from model import TransformerModel, Data, get_dataloaders, SoftMaxLit
 
 DEV = False
 
-df = load_dataset('../dataset/training.json', test=True)
+df = load_dataset('./dataset/training.json', test=True)
 
 # https://stackoverflow.com/questions/65445651/t5tokenizer-requires-the-sentencepiece-library-but-it-was-not-found-in-your-envicheckpoints = []
 checkpoints = []

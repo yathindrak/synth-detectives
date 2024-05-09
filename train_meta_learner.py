@@ -3,10 +3,10 @@ NUM_EPOCH = 100
 
 # Update the following checkpoints in the following order: albert, electra, roberta, xlnet
 checkpoints = [
-    'lightning_logs/version_0/checkpoints/model=albert--dev=True--epoch=2-step=60--val_loss=0.39.ckpt',
-    'lightning_logs/version_1/checkpoints/model=electra--dev=True--epoch=2-step=60--val_loss=0.53.ckpt',
-    'lightning_logs/version_4/checkpoints/model=roberta--dev=True--epoch=3-step=80--val_loss=0.63.ckpt',
-    'lightning_logs/version_5/checkpoints/model=xlnet--dev=True--epoch=3-step=80--val_loss=0.62.ckpt'
+    'lightning_logs/version_0/checkpoints/model=albert--dev=False--epoch=89-step=10170--val_loss=0.35.ckpt',
+    'lightning_logs/version_1/checkpoints/model=electra--dev=False--epoch=297-step=33674--val_loss=0.39.ckpt',
+    'lightning_logs/version_2/checkpoints/model=roberta--dev=False--epoch=299-step=33900--val_loss=0.36.ckpt',
+    'lightning_logs/version_3/checkpoints/model=xlnet--dev=False--epoch=85-step=9718--val_loss=0.38.ckpt'
 ]
 
 import torch
@@ -17,8 +17,9 @@ from helper import load_dataset
 from model import TransformerModel, Data, get_dataloaders, SoftMaxLit
 
 DEV = False
-device = torch.cuda.current_device()
-df = load_dataset('../dataset/training.json', test=True)
+# device = torch.cuda.current_device()
+device = 'mps'
+df = load_dataset('./dataset/training.json', test=True)
 
 pretrained_datasets_x = [
     f"pretrained--dev={DEV}--model=albert.pt",

@@ -1,10 +1,10 @@
-lr_checkpoint_path = 'lightning_logs/version_17/checkpoints/model=lr--dev=False.ckpt'
+lr_checkpoint_path = 'lightning_logs/version_4/checkpoints/model=lr--dev=False.ckpt'
 # Update the following checkpoints in the following order: albert, electra, roberta, xlnet
 checkpoints = [
-    'lightning_logs/version_0/checkpoints/model=albert--dev=True--epoch=2-step=60--val_loss=0.39.ckpt',
-    'lightning_logs/version_1/checkpoints/model=electra--dev=True--epoch=2-step=60--val_loss=0.53.ckpt',
-    'lightning_logs/version_4/checkpoints/model=roberta--dev=True--epoch=3-step=80--val_loss=0.63.ckpt',
-    'lightning_logs/version_5/checkpoints/model=xlnet--dev=True--epoch=3-step=80--val_loss=0.62.ckpt'
+    'lightning_logs/version_0/checkpoints/model=albert--dev=False--epoch=89-step=10170--val_loss=0.35.ckpt',
+    'lightning_logs/version_1/checkpoints/model=electra--dev=False--epoch=297-step=33674--val_loss=0.39.ckpt',
+    'lightning_logs/version_2/checkpoints/model=roberta--dev=False--epoch=299-step=33900--val_loss=0.36.ckpt',
+    'lightning_logs/version_3/checkpoints/model=xlnet--dev=False--epoch=85-step=9718--val_loss=0.38.ckpt'
 ]
 
 import torch
@@ -12,18 +12,20 @@ from helper import load_dataset
 from model import TransformerModel, SoftMaxLit
 
 DEV = False
-device = torch.cuda.current_device()
-df = load_dataset('../dataset/training.json', test=True)
+# device = torch.cuda.current_device()
+device = 'mps'
+df = load_dataset('./dataset/training.json', test=True)
 
-validation_df = load_dataset('./test_data.json', test=False)
+validation_df = load_dataset('./dataset/test_new.json', test=True)
 model_names = ['albert', 'electra', 'roberta', 'xlnet'] #albert: 128, electra: 64, roberta: 128, xlnet: 128
 
+# print(validation_df.head())
 model_y_arr = []
 for model_name, ckpt in zip(model_names, checkpoints):
     n_inputs = TransformerModel.MODELS[model_name]['dim']
     model = SoftMaxLit(n_inputs, 2).load_from_checkpoint(n_inputs=n_inputs, n_outputs=2, checkpoint_path=ckpt)
-
-    x = TransformerModel(model_name).dataset(validation_df, DEV, save=False, delete=False, get_y=False).x.to(device)
+    print(f'Loaded model {model_name} from checkpoint {ckpt}')
+    x = TransformerModel(model_name).dataset(validation_df, DEV, save=False, delete=False).x.to(device)
     y_hat = model(x)
 
     # Free up memory
