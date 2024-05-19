@@ -10,6 +10,7 @@ checkpoints = [
 import torch
 from helper import load_dataset
 from model import TransformerModel, SoftMaxLit
+from sklearn.metrics import confusion_matrix, classification_report
 
 DEV = False
 # device = torch.cuda.current_device()
@@ -39,16 +40,42 @@ x = lr_dataset_x.to(device)
 
 lr_model = SoftMaxLit(lr_dataset_x.shape[1], 2).load_from_checkpoint(n_inputs=lr_dataset_x.shape[1], n_outputs=2, checkpoint_path=lr_checkpoint_path).to(device)
 
+# Get model predictions
 validation_out = lr_model(x)
 validation_out = validation_out.detach()
 out = torch.argmax(validation_out, dim=1)
-f = open('answer.json', 'w')
-f.write('')
-f.close()
 
-f = open('answer.json', 'a')
-for idx, label_out in enumerate(out.tolist()):
-    to_write = '{"id": ' + str(idx) + ', "label": ' + str(label_out) + '}\n'
-    f.write(to_write)
-f.close()
-# {"id": 0, "label": 1}
+# Write predictions to JSON file
+with open('answer.json', 'w') as f:
+    for idx, label_out in enumerate(out.tolist()):
+        to_write = '{"id": ' + str(idx) + ', "label": ' + str(label_out) + '}\n'
+        f.write(to_write)
+
+# Calculate confusion matrix
+true_labels = validation_df['label'].tolist()  # Replace 'label' with the actual column name in your dataset
+predicted_labels = out.tolist()
+cm = confusion_matrix(true_labels, predicted_labels)
+print("Confusion Matrix:")
+print(cm)
+
+# Generate classification report
+report = classification_report(true_labels, predicted_labels, target_names=['Class 0', 'Class 1'], output_dict=True)
+print("Classification Report:")
+for key, value in report.items():
+    if isinstance(value, dict):
+        print(f"{key}:")
+        for sub_key, sub_value in value.items():
+            print(f"  {sub_key}: {sub_value}")
+    else:
+        print(f"{key}: {value}")
+
+# Extract and print additional metrics
+accuracy = report['accuracy']
+precision = report['weighted avg']['precision']
+recall = report['weighted avg']['recall']
+f1_score = report['weighted avg']['f1-score']
+
+print(f"\nAccuracy: {accuracy}")
+print(f"Precision: {precision}")
+print(f"Recall: {recall}")
+print(f"F1-Score: {f1_score}")
